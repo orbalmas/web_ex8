@@ -24,7 +24,7 @@
         }
         .containner{
             border-radius: 8px;
-            width: 200px; margin: 20px auto; background-color: rgb(222, 220, 220);
+            width:400px; margin: 20px auto; background-color: rgb(222, 220, 220);
             padding: 5px;
             font-family: 'Arial', sans-serif;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -73,28 +73,36 @@
 <body class="dark:text-white light:text-black">
 
     <div style ="text-align: center; font-size: 24px;  font-family: 'Arial', sans-serif; color: rgb(22, 30, 41);" id="myDiv">
-        Calculator 
-    <div class="containner">
-    <div class="monitor" id="monitor">0</div>
-    <div class="buttons">
-     <div class="but">1</div>
-     <div class="but">2</div>
-     <div class="but">3</div>
-     <div class="but">4</div>
-     <div class="but">5</div>
-     <div class="but">6</div>                  
-     <div class="but">7</div>
-     <div class="but">8</div>
-     <div class="but">9</div>  
-     <div class="but">0</div>
-     <div class="but">+</div>
-     <div class="but">-</div>
-     <div class="but">\</div>
-     <div class="but">*</div>
-     <div class="but">C</div>
-     <div class="but">.</div>
+        Scientific Calculator
+     <div class="containner">
+     <div class="monitor" id="monitor">result</div>
+     <div class="buttons">
+     <div class="but" onclick="appendNumber(1)">1</div>
+     <div class="but" onclick="appendNumber(2)">2</div>
+     <div class="but" onclick="appendNumber(3)">3</div>
+     <div class="but" onclick="appendNumber(4)">4</div>
+     <div class="but" onclick="appendNumber(5)">5</div>
+     <div class="but" onclick="appendNumber(6)">6</div>                  
+     <div class="but" onclick="appendNumber(7)">7</div>
+     <div class="but" onclick="appendNumber(8)">8</div>
+     <div class="but" onclick="appendNumber(9)">9</div>  
+     <div class="but" onclick="appendNumber(0)">0</div>
+     <div class="but" onclick="appendSymbol('+')">+</div>
+     <div class="but" onclick="appendSymbol('-')">-</div>
+     <div class="but" onclick="appendSymbol('/')">/</div>
+     <div class="but" onclick="appendSymbol('*')" >*</div>
+     <div class="but" onclick="startPower()">x^y</div>
+     <div class="but" onclick="appendSymbol('.')">.</div>
+     <div class="but" onclick="appendPi()">π</div>
+     <div class="but" onclick="storeInMemory()">M+</div>
+     <div class="but" onclick="retrieveFromMemory()">MR</div>
+     <div class="but" onclick="onclick=clearMemory()">MCR</div>
+     <div class="but" onclick="appendSymbol('&lpar;')">&#40;</div>
+     <div class="but" onclick="appendSymbol('&rpar;')">&#41;</div>
+     <div class="but" onclick="deleteLast()">←</div>
+     <div class="but" onclick="clearDisplay()">C</div>
      </div> 
-     <div class="result">=</div>
+     <div class="result" onclick="calculate()">=</div>
     </div>
   
     <script>
@@ -103,23 +111,75 @@
             border: true // app border in the MTW page                    
         }
 
-        ///////////////////////////////////////////////////////
-        // implement this functions in order to use private API        
-        const sendPrivateApiRequest = async () => {
-            // your code here:
-            // sendRequestToParent({ cat: 'getAssets' })
-        }        
+        let monitor = document.getElementById('monitor');
+        let currentInput = '';
+        let memory = 0;
 
-        const acceptPrivateApiResponse = async (data) => {
-            // process received data here:
-            // console.log(data)
+        function appendNumber(number) {
+            currentInput += number;
+            updateDisplay();
         }
 
-        // use this in order to send on document load
-        document.addEventListener('DOMContentLoaded', () => {
-            // your code here:
-            //sendRequestToParent({ method: 'getAssets' })
-        })
+        function appendSymbol(symbol) {
+            currentInput += symbol;
+            updateDisplay();
+        }
+
+        function appendFunction(func) {
+            currentInput += func.name + '(';
+            updateDisplay();
+        }
+
+        function clearDisplay() {
+            currentInput = '';
+            updateDisplay();
+        }
+
+        function deleteLast() {
+            currentInput = currentInput.slice(0, -1);
+            updateDisplay();
+        }
+
+        function calculate() {
+            try {
+                currentInput = new Function('return ' + currentInput)();
+                updateDisplay();
+            } catch (error) {
+                monitor .innerHTML = 'Error';
+            }
+        }
+
+        function evaluateExpression(expression) {
+            return Function('"use strict";return (' + expression + ')')();
+        }
+
+        function updateDisplay() {
+            monitor.innerHTML = currentInput || '0';
+        }
+
+        function startPower() {
+        currentInput += '**';  
+        updateDisplay();
+        }
+
+        function appendPi() {
+            currentInput += 'Math.PI';
+            updateDisplay();
+        }
+        function storeInMemory() {
+            try {
+                memory += evaluateExpression(currentInput);
+            } catch (error) {
+                display.innerHTML = 'Error';
+            }
+        }
+        function retrieveFromMemory() {
+            currentInput += memory;
+            updateDisplay();
+        }
+        function clearMemory() {
+            memory = 0;
+        }
 
     </script>
     <script src="https://orbalmas.github.io/WebTech2024/"></script>
