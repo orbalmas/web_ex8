@@ -9,5 +9,5 @@ git init
 git add README.md
 git commit -m "first commit"
 git branch -M main
-git remote add origin https://github.com/orbalmas/WebTech2024.git
+git remote add origin https://github.com/orbalmas/web_ex4.git
 git push -u origin main
