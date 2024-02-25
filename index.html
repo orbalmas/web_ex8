@@ -1,87 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BTC/USD Prices</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-  </head>
-  <body>
-    <div id="app" class="max-w-[1000px] mx-auto">
-      <h1 class="font-bold text-3xl text-center text-blue-600 my-4">
-        Cryptocurrency Data
-      </h1>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Viewer</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 p-4">
+    <div class="max-w-2xl mx-auto bg-white p-8 rounded shadow">
+        <h1 class="text-2xl font-bold mb-4">Data Viewer</h1>
+        <table class="w-full table-auto">
+            <thead>
+                <tr>
+                    <th class="border px-4 py-2">ID</th>
+                    <th class="border px-4 py-2">Name</th>
+                    <th class="border px-4 py-2">Price</th>
+                </tr>
+            </thead>
+            <tbody id="dataBody"></tbody>
+        </table>
+        <div class="mt-4 flex justify-between">
+            <button id="prevBtn" class="px-4 py-2 bg-blue-500 text-white rounded">Previous</button>
+            <button id="nextBtn" class="px-4 py-2 bg-blue-500 text-white rounded">Next</button>
+        </div>
     </div>
-    <script>
-      //methods for objects to array data = ADA
-      //object.keys(data)
-      //object.values(data)
-      //object.entities(data)
-     const fields = ["image", "symbol", "name", "summary"]
-      
-     const row = (k, v, i) => {
-        // complete tr string
-        return `<tr>${fields.map((f) => cell(k, f, v)).join("")}</tr>`
-      }
-      
-      const cell = (sym, prop, v) =>{
-        switch(prop){
-          case "image":
-            return `<td class ="w-16 p-2 align-top border-b border-gray-200"><img class="h-full w-auto" src="${v[prop]}" /></td>`
-          case "symbol":
-            return `<td class ="p-2 align-top border-b border-gray-200">${sym}</td>`
-          case "name":
-            return `<td class="p-2 align-top border-b border-gray-200"><a class="text-blue-400 font-bold hover:underline" href="${v["website"]}" target="_blank">${v[prop]}</a></td>`
-          default:
-            return `<td class="p-2 align-top border-b border-gray-200">${v[prop]}</td>`
-        }
-      }
-      const createTable = (data) => {
-        // create table string and insert it into "app" div before end
-        console.log(data)
-        const rows = Object.entries(data).map(([k, v], i)=>row(k, v, i)).join("")
-
-        const rH = `<tr>${fields.map((f)=>`<th class="font-bold bg-gray-200">${f === "image" ? "" : f}</th>`).join("")}</tr>`
-
-        const table = `<table class="w-full">${rH}${rows}</table>`
-        document.getElementById('app').insertAdjacentHTML('beforeend', table)
-        
-      }
-
-      const url = "https://api.mtw-testnet.com/assets/all"
-      fetch(url)
-        .then((response) => {
-          return response.json()
-        })
-        .then((v) => createTable(v))
-        .catch((err) => console.log(err))
-    </script>
 
     <script>
-      // custom config for the MTW app 
-      const mtwAppConfig = {
-          border: true // app border in the MTW page                    
-      }
+        document.addEventListener("DOMContentLoaded", () => {
+            const dataBody = document.getElementById("dataBody");
+            const prevBtn = document.getElementById("prevBtn");
+            const nextBtn = document.getElementById("nextBtn");
 
-      ///////////////////////////////////////////////////////
-      // implement this functions in order to use private API        
-      const sendPrivateApiRequest = async () => {
-          // your code here:
-          // sendRequestToParent({ cat: 'getAssets' })
-      }        
+            let currentPage = 1;
+            const itemsPerPage = 10;
 
-      const acceptPrivateApiResponse = async (data) => {
-          // process received data here:
-          // console.log(data)
-      }
+            async function fetchData(page) {
+                try {
+                    const response = await fetch(`https://dummyjson.com/docs/products?page=${page}`);
+                    const data = await response.json();
+                    return data;
+                } catch (error) {
+                    console.error("Error fetching data:", error);
+                }
+            }
 
-      // use this in order to send on document load
-      document.addEventListener('DOMContentLoaded', () => {
-          // your code here:
-          //sendRequestToParent({ method: 'getAssets' })
-      })
+            function displayData(data) {
+                dataBody.innerHTML = "";
+                data.forEach((item) => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td class="border px-4 py-2">${item.id}</td>
+                        <td class="border px-4 py-2">${item.name}</td>
+                        <td class="border px-4 py-2">${item.price}</td>
+                    `;
+                    dataBody.appendChild(row);
+                });
+            }
 
+            async function updateTable() {
+                const data = await fetchData(currentPage);
+                displayData(data);
+            }
+
+            prevBtn.addEventListener("click", () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    updateTable();
+                }
+            });
+
+            nextBtn.addEventListener("click", () => {
+                currentPage++;
+                updateTable();
+            });
+
+            // Initial data fetch and display
+            updateTable();
+        });
     </script>
-    <script src="https://morethanwallet.com/appstore/index.js"></script>
-  </body>
+</body>
+
 </html>
