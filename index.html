@@ -1,188 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MTW App Template</title>
-    <!--
-        The tailwind CDN is designed for development purposes only, and is not the best choice for production.
-        Read more here: https://tailwindcss.com/docs/installation 
-    -->
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BTC/USD Prices</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- example for dark theme styling when using tailwind cdn -->
-    <style>
-        /*examples for dark/light themes*/
-        .dark .dark\:text-white {
-            color: #fff;
-        }
-        .dark .dark\:bg-gray-800 {
-            background-color: #1f2937;
-        }
-        .light .light\:text-black {
-            color: #000;
-        }
-        .containner{
-            border-radius: 8px;
-            width:400px; margin: 20px auto; background-color: rgb(222, 220, 220);
-            padding: 5px;
-            font-family: 'Arial', sans-serif;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            
-        }
-        .buttons {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-        }
-        .but{
-            float: left;
-            font-size: 1em;
-            padding: 15px;
-            border: none;
-            outline: none;
-            cursor: pointer;
-            background-color: #f0f0f0;
-            transition: background-color 0.3s ease;
-        
-        }
-        .but:hover{
-            background-color: rgb(197, 223, 248);
-            color: rgb(191, 255, 255);
-        }
-        .monitor{
-            background-color: rgb(255, 255, 255);
-            padding: 5px;
-            color: rgb(0, 111, 128);
-        }
-        .result{
-            background-color: rgb(230, 229, 227);
-            margin: 10px;
-            text-align: center;
-            padding: 10px ;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .result:hover{
-            background-color: rgb(197, 223, 248);
-            color: rgb(191, 255, 255);
-        }
-    
-    </style>
-</head>
-
-<body class="dark:text-white light:text-black">
-
-    <div style ="text-align: center; font-size: 24px;  font-family: 'Arial', sans-serif; color: rgb(22, 30, 41);" id="myDiv">
-        Scientific Calculator
-     <div class="containner">
-     <div class="monitor" id="monitor">result</div>
-     <div class="buttons">
-     <div class="but" onclick="appendNumber(1)">1</div>
-     <div class="but" onclick="appendNumber(2)">2</div>
-     <div class="but" onclick="appendNumber(3)">3</div>
-     <div class="but" onclick="appendNumber(4)">4</div>
-     <div class="but" onclick="appendNumber(5)">5</div>
-     <div class="but" onclick="appendNumber(6)">6</div>                  
-     <div class="but" onclick="appendNumber(7)">7</div>
-     <div class="but" onclick="appendNumber(8)">8</div>
-     <div class="but" onclick="appendNumber(9)">9</div>  
-     <div class="but" onclick="appendNumber(0)">0</div>
-     <div class="but" onclick="appendSymbol('+')">+</div>
-     <div class="but" onclick="appendSymbol('-')">-</div>
-     <div class="but" onclick="appendSymbol('/')">/</div>
-     <div class="but" onclick="appendSymbol('*')" >*</div>
-     <div class="but" onclick="startPower()">x^y</div>
-     <div class="but" onclick="appendSymbol('.')">.</div>
-     <div class="but" onclick="appendPi()">π</div>
-     <div class="but" onclick="storeInMemory()">M+</div>
-     <div class="but" onclick="retrieveFromMemory()">MR</div>
-     <div class="but" onclick="onclick=clearMemory()">MCR</div>
-     <div class="but" onclick="appendSymbol('&lpar;')">&#40;</div>
-     <div class="but" onclick="appendSymbol('&rpar;')">&#41;</div>
-     <div class="but" onclick="deleteLast()">←</div>
-     <div class="but" onclick="clearDisplay()">C</div>
-     </div> 
-     <div class="result" onclick="calculate()">=</div>
+  </head>
+  <body>
+    <div id="app" class="max-w-[1000px] mx-auto">
+      <h1 class="font-bold text-3xl text-center text-blue-600 my-4">
+        Cryptocurrency Data
+      </h1>
     </div>
-  
     <script>
-        // custom config for the MTW app 
-        const mtwAppConfig = {
-            border: true // app border in the MTW page                    
+      //methods for objects to array data = ADA
+      //object.keys(data)
+      //object.values(data)
+      //object.entities(data)
+     const fields = ["image", "symbol", "name", "summary"]
+      
+     const row = (k, v, i) => {
+        // complete tr string
+        return `<tr>${fields.map((f) => cell(k, f, v)).join("")}</tr>`
+      }
+      
+      const cell = (sym, prop, v) =>{
+        switch(prop){
+          case "image":
+            return `<td class ="w-16 p-2 align-top border-b border-gray-200"><img class="h-full w-auto" src="${v[prop]}" /></td>`
+          case "symbol":
+            return `<td class ="p-2 align-top border-b border-gray-200">${sym}</td>`
+          case "name":
+            return `<td class="p-2 align-top border-b border-gray-200"><a class="text-blue-400 font-bold hover:underline" href="${v["website"]}" target="_blank">${v[prop]}</a></td>`
+          default:
+            return `<td class="p-2 align-top border-b border-gray-200">${v[prop]}</td>`
         }
+      }
+      const createTable = (data) => {
+        // create table string and insert it into "app" div before end
+        console.log(data)
+        const rows = Object.entries(data).map(([k, v], i)=>row(k, v, i)).join("")
 
-        let monitor = document.getElementById('monitor');
-        let currentInput = '';
-        let memory = 0;
+        const rH = `<tr>${fields.map((f)=>`<th class="font-bold bg-gray-200">${f === "image" ? "" : f}</th>`).join("")}</tr>`
 
-        function appendNumber(number) {
-            currentInput += number;
-            updateDisplay();
-        }
+        const table = `<table class="w-full">${rH}${rows}</table>`
+        document.getElementById('app').insertAdjacentHTML('beforeend', table)
+        
+      }
 
-        function appendSymbol(symbol) {
-            currentInput += symbol;
-            updateDisplay();
-        }
+      const url = "https://api.mtw-testnet.com/assets/all"
+      fetch(url)
+        .then((response) => {
+          return response.json()
+        })
+        .then((v) => createTable(v))
+        .catch((err) => console.log(err))
+    </script>
 
-        function appendFunction(func) {
-            currentInput += func.name + '(';
-            updateDisplay();
-        }
+    <script>
+      // custom config for the MTW app 
+      const mtwAppConfig = {
+          border: true // app border in the MTW page                    
+      }
 
-        function clearDisplay() {
-            currentInput = '';
-            updateDisplay();
-        }
+      ///////////////////////////////////////////////////////
+      // implement this functions in order to use private API        
+      const sendPrivateApiRequest = async () => {
+          // your code here:
+          // sendRequestToParent({ cat: 'getAssets' })
+      }        
 
-        function deleteLast() {
-            currentInput = currentInput.slice(0, -1);
-            updateDisplay();
-        }
+      const acceptPrivateApiResponse = async (data) => {
+          // process received data here:
+          // console.log(data)
+      }
 
-        function calculate() {
-            try {
-                currentInput = new Function('return ' + currentInput)();
-                updateDisplay();
-            } catch (error) {
-                monitor .innerHTML = 'Error';
-            }
-        }
-
-        function evaluateExpression(expression) {
-            return Function('"use strict";return (' + expression + ')')();
-        }
-
-        function updateDisplay() {
-            monitor.innerHTML = currentInput || '0';
-        }
-
-        function startPower() {
-        currentInput += '**';  
-        updateDisplay();
-        }
-
-        function appendPi() {
-            currentInput += 'Math.PI';
-            updateDisplay();
-        }
-        function storeInMemory() {
-            try {
-                memory += evaluateExpression(currentInput);
-            } catch (error) {
-                display.innerHTML = 'Error';
-            }
-        }
-        function retrieveFromMemory() {
-            currentInput += memory;
-            updateDisplay();
-        }
-        function clearMemory() {
-            memory = 0;
-        }
+      // use this in order to send on document load
+      document.addEventListener('DOMContentLoaded', () => {
+          // your code here:
+          //sendRequestToParent({ method: 'getAssets' })
+      })
 
     </script>
-    <script src="https://orbalmas.github.io/WebTech2024/"></script>
-</body>
-
+    <script src="https://morethanwallet.com/appstore/index.js"></script>
+  </body>
 </html>
