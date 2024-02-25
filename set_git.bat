@@ -4,7 +4,7 @@
 :: add :: before the next row to initialize the repository
 exit /b
 
-echo "# WebTech2024E_4" >> README.md
+echo "# web_ex4" >> README.md
 git init
 git add README.md
 git commit -m "first commit"
