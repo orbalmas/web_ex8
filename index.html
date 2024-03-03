@@ -1,129 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" ng-app="photoGalleryApp">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Product Listing with Pagination</title>
+    <title>AngularJS Photo Gallery</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* Custom styles */
+        .thumbnail {
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .thumbnail:hover {
+            transform: scale(1.1);
+        }
+
+        .selected-photo {
+            max-width: 100%;
+            max-height: 100%;
+            border: 2px solid #4a90e2;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+    </style>
 </head>
-
-<body class="bg-pink-100 min-h-screen flex flex-col items-center font-cursive">
-
-    <div class="container mx-auto mt-8">
-        <h1 class="text-4xl font-bold mb-6 text-pink-800">Product Listing</h1>
-
-        <div id="productTable" class="bg-pink-200 rounded shadow-lg overflow-hidden">
-            <table class="min-w-full">
-                <thead>
-                    <tr>
-                        <th class="py-3 px-6 bg-pink-300 text-left text-xs font-semibold text-pink-800 uppercase">
-                            Product Name
-                        </th>
-                        <th class="py-3 px-6 bg-pink-300 text-left text-xs font-semibold text-pink-800 uppercase">
-                            Brand
-                        </th>
-                        <th class="py-3 px-6 bg-pink-300 text-left text-xs font-semibold text-pink-800 uppercase">
-                            Price
-                        </th>
-                    </tr>
-                </thead>
-                <tbody id="productTableBody">
-                    <!-- Data will be populated here -->
-                </tbody>
-            </table>
+<body ng-controller="GalleryController as gallery" class="bg-gray-100">
+    <div class="container mx-auto p-4">
+        <div class="flex flex-wrap -mx-2">
+            <div class="my-2 px-2 w-1/6" ng-repeat="photo in gallery.photos">
+                <img ng-src="{{photo.src}}" alt="Photo" ng-click="gallery.selectPhoto(photo.src)" class="w-full h-auto cursor-pointer thumbnail">
+            </div>
         </div>
-
-        <div class="flex justify-between mt-4">
-            <button id="prevBtn" class="bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded" disabled>Previous</button>
-            <button id="nextBtn" class="bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded">Next</button>
+        <div ng-if="gallery.selectedPhoto" class="mt-8">
+            <img ng-src="{{gallery.selectedPhoto}}" alt="Selected Photo" class="mx-auto selected-photo">
         </div>
     </div>
-
-    <script>
-        $(function () {
-            const url = 'https://dummyjson.com/products?limit=100';
-            let currentPage = 0;
-            const itemsPerPage = 20;
-            let totalItems = 0;
-            let products = [];
-
-            const fetchProducts = async () => {
-                try {
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    products = data.products;
-                    totalItems = products.length;
-                    displayProducts();
-                } catch (error) {
-                    console.error('Error fetching data:', error);
-                }
-            };
-
-            const displayProducts = () => {
-                const start = currentPage * itemsPerPage;
-                const end = start + itemsPerPage;
-                const paginatedItems = products.slice(start, end);
-
-                const tableBody = $('#productTableBody');
-                tableBody.empty();
-
-                paginatedItems.forEach(product => {
-                    const row = `
-                        <tr class="border-b">
-                            <td class="py-3 px-6 text-left whitespace-nowrap">${product.title}</td>
-                            <td class="py-3 px-6 text-left whitespace-nowrap">${product.brand}</td>
-                            <td class="py-3 px-6 text-left whitespace-nowrap">$${product.price}</td>
-                        </tr>
-                    `;
-                    tableBody.append(row);
-                });
-
-                $('#prevBtn').prop('disabled', currentPage === 0);
-                $('#nextBtn').prop('disabled', end >= totalItems);
-            };
-
-            $('#nextBtn').click(() => {
-                currentPage++;
-                displayProducts();
-            });
-
-            $('#prevBtn').click(() => {
-                if (currentPage > 0) {
-                    currentPage--;
-                    displayProducts();
-                }
-            });
-
-            fetchProducts();
-        });
-       // custom config for the MTW app 
-       const mtwAppConfig = {
-            border: true // app border in the MTW page                    
-        }
-
-        ///////////////////////////////////////////////////////
-        // implement this functions in order to use private API        
-        const sendPrivateApiRequest = async () => {
-            // your code here:
-            // sendRequestToParent({ cat: 'getAssets' })
-        }        
-
-        const acceptPrivateApiResponse = async (data) => {
-            // process received data here:
-            // console.log(data)
-        }
-
-        // use this in order to send on document load
-        document.addEventListener('DOMContentLoaded', () => {
-            // your code here:
-            //sendRequestToParent({ method: 'getAssets' })
-        })
-        
-    </script>
- <script src="https://morethanwallet.com/appstore/index.js"></script>
+    
+    <script src="app.js"></script>
+    <script src="https://morethanwallet.com/appstore/index.js"></script>
 </body>
-
 </html>

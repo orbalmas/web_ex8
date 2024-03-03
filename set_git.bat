@@ -4,10 +4,10 @@
 :: add :: before the next row to initialize the repository
 exit /b
 
-echo "# web_ex6" >> README.md
+echo "# web_ex7" >> README.md
 git init
 git add README.md
 git commit -m "first commit"
 git branch -M main
-git remote add origin https://github.com/orbalmas/web_ex6.git
+git remote add origin https://github.com/orbalmas/web_ex7.git
 git push -u origin main
