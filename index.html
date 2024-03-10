@@ -3,127 +3,91 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Product Listing with Pagination</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Image Browser</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.0.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.0.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.14.7/babel.min.js"></script>
+    <!-- Add the following script for async/await support in Babel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-preset-env/1.7.0/preset-env.min.js"></script>
+    <style>
+        /* Add custom styles here */
+        /* ... Your existing styles ... */
+    </style>
 </head>
 
-<body class="bg-pink-100 min-h-screen flex flex-col items-center font-cursive">
+<body>
 
-    <div class="container mx-auto mt-8">
-        <h1 class="text-4xl font-bold mb-6 text-pink-800">Product Listing</h1>
+    <div id="app"></div>
 
-        <div id="productTable" class="bg-pink-200 rounded shadow-lg overflow-hidden">
-            <table class="min-w-full">
-                <thead>
-                    <tr>
-                        <th class="py-3 px-6 bg-pink-300 text-left text-xs font-semibold text-pink-800 uppercase">
-                            Product Name
-                        </th>
-                        <th class="py-3 px-6 bg-pink-300 text-left text-xs font-semibold text-pink-800 uppercase">
-                            Brand
-                        </th>
-                        <th class="py-3 px-6 bg-pink-300 text-left text-xs font-semibold text-pink-800 uppercase">
-                            Price
-                        </th>
-                    </tr>
-                </thead>
-                <tbody id="productTableBody">
-                    <!-- Data will be populated here -->
-                </tbody>
-            </table>
-        </div>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-        <div class="flex justify-between mt-4">
-            <button id="prevBtn" class="bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded" disabled>Previous</button>
-            <button id="nextBtn" class="bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded">Next</button>
-        </div>
-    </div>
+        const ImageBrowserApp = () => {
+            const [images, setImages] = useState([]);
+            const [selectedImage, setSelectedImage] = useState(null);
+            const [limit, setLimit] = useState(15);
 
-    <script>
-        $(function () {
-            const url = 'https://dummyjson.com/products?limit=100';
-            let currentPage = 0;
-            const itemsPerPage = 20;
-            let totalItems = 0;
-            let products = [];
-
-            const fetchProducts = async () => {
+            const fetchImages = async () => {
                 try {
-                    const response = await fetch(url);
+                    const response = await fetch(`https://picsum.photos/v2/list?limit=${limit}`);
                     const data = await response.json();
-                    products = data.products;
-                    totalItems = products.length;
-                    displayProducts();
+
+                    const imageList = data.map(item => ({
+                        thumbnail: `https://picsum.photos/100/100?image=${item.id}`,
+                        full: `https://picsum.photos/${item.width}/${item.height}?image=${item.id}`
+                    }));
+
+                    setImages(imageList);
                 } catch (error) {
-                    console.error('Error fetching data:', error);
+                    console.error('Error fetching images:', error);
                 }
             };
 
-            const displayProducts = () => {
-                const start = currentPage * itemsPerPage;
-                const end = start + itemsPerPage;
-                const paginatedItems = products.slice(start, end);
-
-                const tableBody = $('#productTableBody');
-                tableBody.empty();
-
-                paginatedItems.forEach(product => {
-                    const row = `
-                        <tr class="border-b">
-                            <td class="py-3 px-6 text-left whitespace-nowrap">${product.title}</td>
-                            <td class="py-3 px-6 text-left whitespace-nowrap">${product.brand}</td>
-                            <td class="py-3 px-6 text-left whitespace-nowrap">$${product.price}</td>
-                        </tr>
-                    `;
-                    tableBody.append(row);
-                });
-
-                $('#prevBtn').prop('disabled', currentPage === 0);
-                $('#nextBtn').prop('disabled', end >= totalItems);
+            const selectImage = (imageUrl) => {
+                setSelectedImage(imageUrl);
             };
 
-            $('#nextBtn').click(() => {
-                currentPage++;
-                displayProducts();
-            });
+            const handleLimitChange = (event) => {
+                setLimit(event.target.value);
+            };
 
-            $('#prevBtn').click(() => {
-                if (currentPage > 0) {
-                    currentPage--;
-                    displayProducts();
-                }
-            });
+            const handleSubmit = (event) => {
+                event.preventDefault();
+                fetchImages();
+            };
 
-            fetchProducts();
-        });
-       // custom config for the MTW app 
-       const mtwAppConfig = {
-            border: true // app border in the MTW page                    
-        }
+            useEffect(() => {
+                fetchImages();
+            }, [limit]);
 
-        ///////////////////////////////////////////////////////
-        // implement this functions in order to use private API        
-        const sendPrivateApiRequest = async () => {
-            // your code here:
-            // sendRequestToParent({ cat: 'getAssets' })
-        }        
+            return (
+                <div>
+                    <h1>Image Browser</h1>
+                    <form onSubmit={handleSubmit}>
+                        <label>
+                            Image Limit:
+                            <input type="number" value={limit} onChange={handleLimitChange} />
+                        </label>
+                        <button type="submit">Fetch Images</button>
+                    </form>
+                    <div className="thumbnail-container">
+                        {images.map(image => (
+                            <img key={image.thumbnail} src={image.thumbnail} className="thumbnail" onClick={() => selectImage(image.full)} />
+                        ))}
+                    </div>
+                    {selectedImage && (
+                        <div className="selected-image-container">
+                            <h2>Selected Image</h2>
+                            <img src={selectedImage} alt="Selected Image" />
+                        </div>
+                    )}
+                </div>
+            );
+        };
 
-        const acceptPrivateApiResponse = async (data) => {
-            // process received data here:
-            // console.log(data)
-        }
-
-        // use this in order to send on document load
-        document.addEventListener('DOMContentLoaded', () => {
-            // your code here:
-            //sendRequestToParent({ method: 'getAssets' })
-        })
-        
+        ReactDOM.render(<ImageBrowserApp />, document.getElementById('app'));
     </script>
- <script src="https://morethanwallet.com/appstore/index.js"></script>
+    <script src="https://morethanwallet.com/appstore/index.js"></script>
 </body>
 
 </html>
